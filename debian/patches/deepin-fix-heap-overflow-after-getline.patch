@@ -1,0 +1,18 @@
+From: wangyangbo <wangyangbo@uniontech.com>
+Date: Tue, 23 Nov 2021 16:10:01 +0008
+Subject: fix heap-overflow after getline
+  strchr will trigger heap-overflow when no-root run, building with
+  -fsanitize=address. something like strnchr will avoid this.
+
+
+--- parted-3.4.orig/libparted/labels/gpt.c
++++ parted-3.4/libparted/labels/gpt.c
+@@ -344,7 +344,7 @@ dmi_system_manufacturer (void)
+   }
+   pclose (dmidecode);
+   if (manufacturer) {
+-    char *newline = strchr (manufacturer, '\n');
++    char *newline = memchr (manufacturer, '\n', strnlen(manufacturer, manufacturer_len));
+     if (newline)
+       *newline = '\0';
+   }
