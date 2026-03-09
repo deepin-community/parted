@@ -1,5 +1,5 @@
 # Customize maint.mk                           -*- makefile -*-
-# Copyright (C) 2003-2014, 2019-2021 Free Software Foundation, Inc.
+# Copyright (C) 2003-2014, 2019-2023 Free Software Foundation, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ local-checks-to-skip = \
 export VERBOSE = yes
 
 # Hash of lines 42-208 for release 3.2
-old_NEWS_hash = 048e0facc662623870b9eea4e160c3ad
+old_NEWS_hash = 1d4e1fd474f9d7f11fb5b218d15da7d3
 
 include $(srcdir)/dist-check.mk
 

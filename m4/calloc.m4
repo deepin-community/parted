@@ -1,6 +1,6 @@
-# calloc.m4 serial 23
+# calloc.m4 serial 30
 
-# Copyright (C) 2004-2020 Free Software Foundation, Inc.
+# Copyright (C) 2004-2023 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -14,12 +14,11 @@
 
 # _AC_FUNC_CALLOC_IF([IF-WORKS], [IF-NOT])
 # -------------------------------------
-# If 'calloc (0, 0)' is properly handled, run IF-WORKS, otherwise, IF-NOT.
+# If calloc is compatible with GNU calloc, run IF-WORKS, otherwise, IF-NOT.
 AC_DEFUN([_AC_FUNC_CALLOC_IF],
 [
-  AC_REQUIRE([AC_TYPE_SIZE_T])dnl
   AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
-  AC_CACHE_CHECK([for GNU libc compatible calloc],
+  AC_CACHE_CHECK([whether calloc (0, n) and calloc (n, 0) return nonnull],
     [ac_cv_func_calloc_0_nonnull],
     [if test $cross_compiling != yes; then
        ac_cv_func_calloc_0_nonnull=yes
@@ -35,85 +34,50 @@ AC_DEFUN([_AC_FUNC_CALLOC_IF],
             ]])],
          [],
          [ac_cv_func_calloc_0_nonnull=no])
-       AC_RUN_IFELSE(
-         [AC_LANG_PROGRAM(
-            [AC_INCLUDES_DEFAULT],
-            [[int result;
-              typedef struct { char c[8]; } S8;
-              size_t n = (size_t) -1 / sizeof (S8) + 2;
-              S8 * volatile s = calloc (n, sizeof (S8));
-              if (s)
-                {
-                  s[0].c[0] = 1;
-                  if (s[n - 1].c[0])
-                    result = 0;
-                  else
-                    result = 2;
-                }
-              else
-                result = 3;
-              free (s);
-              return result;
-            ]])],
-         dnl The exit code of this program is 0 if calloc() succeeded with a
-         dnl wrap-around bug (which it shouldn't), 2 if calloc() succeeded in
-         dnl a non-flat address space, 3 if calloc() failed, or 1 if some leak
-         dnl sanitizer terminated the program as a result of the calloc() call.
-         [ac_cv_func_calloc_0_nonnull=no],
-         [])
      else
        case "$host_os" in
-                        # Guess yes on glibc systems.
-         *-gnu* | gnu*) ac_cv_func_calloc_0_nonnull="guessing yes" ;;
-                        # Guess yes on musl systems.
-         *-musl*)       ac_cv_func_calloc_0_nonnull="guessing yes" ;;
-                        # Guess yes on native Windows.
-         mingw*)        ac_cv_func_calloc_0_nonnull="guessing yes" ;;
-                        # If we don't know, obey --enable-cross-guesses.
-         *)             ac_cv_func_calloc_0_nonnull="$gl_cross_guess_normal" ;;
+                             # Guess yes on glibc systems.
+         *-gnu* | gnu*)      ac_cv_func_calloc_0_nonnull="guessing yes" ;;
+                             # Guess yes on musl systems.
+         *-musl* | midipix*) ac_cv_func_calloc_0_nonnull="guessing yes" ;;
+                             # Guess yes on native Windows.
+         mingw*)             ac_cv_func_calloc_0_nonnull="guessing yes" ;;
+                             # If we don't know, obey --enable-cross-guesses.
+         *)                  ac_cv_func_calloc_0_nonnull="$gl_cross_guess_normal" ;;
        esac
      fi
     ])
-  case "$ac_cv_func_calloc_0_nonnull" in
-    *yes)
-      $1
-      ;;
-    *)
-      $2
-      ;;
-  esac
-])# AC_FUNC_CALLOC
+  AS_CASE([$ac_cv_func_calloc_0_nonnull], [*yes], [$1], [$2])
+])
 
 
 # gl_FUNC_CALLOC_GNU
 # ------------------
-# Report whether 'calloc (0, 0)' is properly handled, and replace calloc if
-# needed.
+# Replace calloc if it is not compatible with GNU libc.
 AC_DEFUN([gl_FUNC_CALLOC_GNU],
 [
   AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
-  _AC_FUNC_CALLOC_IF(
-    [AC_DEFINE([HAVE_CALLOC_GNU], [1],
-               [Define to 1 if your system has a GNU libc compatible 'calloc'
-                function, and to 0 otherwise.])],
-    [AC_DEFINE([HAVE_CALLOC_GNU], [0])
-     REPLACE_CALLOC=1
-    ])
+  AC_REQUIRE([gl_FUNC_CALLOC_POSIX])
+  REPLACE_CALLOC_FOR_CALLOC_GNU="$REPLACE_CALLOC_FOR_CALLOC_POSIX"
+  if test $REPLACE_CALLOC_FOR_CALLOC_GNU = 0; then
+    _AC_FUNC_CALLOC_IF([], [REPLACE_CALLOC_FOR_CALLOC_GNU=1])
+  fi
 ])# gl_FUNC_CALLOC_GNU
-
 
 # gl_FUNC_CALLOC_POSIX
 # --------------------
 # Test whether 'calloc' is POSIX compliant (sets errno to ENOMEM when it
-# fails), and replace calloc if it is not.
+# fails, and doesn't mess up with ptrdiff_t or size_t overflow),
+# and replace calloc if it is not.
 AC_DEFUN([gl_FUNC_CALLOC_POSIX],
 [
   AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
-  AC_REQUIRE([gl_CHECK_MALLOC_POSIX])
-  if test $gl_cv_func_malloc_posix = yes; then
-    AC_DEFINE([HAVE_CALLOC_POSIX], [1],
-      [Define if the 'calloc' function is POSIX compliant.])
-  else
-    REPLACE_CALLOC=1
+  AC_REQUIRE([gl_FUNC_MALLOC_POSIX])
+  if test $REPLACE_MALLOC_FOR_MALLOC_POSIX = 1; then
+    REPLACE_CALLOC_FOR_CALLOC_POSIX=1
   fi
+  dnl Although in theory we should also test for size_t overflow,
+  dnl in practice testing for ptrdiff_t overflow suffices
+  dnl since PTRDIFF_MAX <= SIZE_MAX on all known Gnulib porting targets.
+  dnl A separate size_t test would slow down 'configure'.
 ])

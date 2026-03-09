@@ -1,4 +1,4 @@
-From a2a957d3280a16f6752300532d403cbe75f04454 Mon Sep 17 00:00:00 2001
+From c55385989caf6e0fcdeb2a2157fbf2a3f3b59459 Mon Sep 17 00:00:00 2001
 From: Viktor Vasilev <Viktor Vasilev>
 Date: Fri, 28 Mar 2014 17:09:42 +0000
 Subject: Add GNU/kFreeBSD support
@@ -24,7 +24,7 @@ Patch-Name: kfreebsd-gnu.patch
  create mode 100644 libparted/arch/freebsd.c
 
 diff --git a/configure.ac b/configure.ac
-index d034064e..cdb45d0b 100644
+index cf9fb8a5..d838c32c 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -62,7 +62,8 @@ case "$host_os" in
@@ -43,7 +43,7 @@ index d034064e..cdb45d0b 100644
  ])
 +AC_CHECK_TYPE([loff_t], [long long])
  
- AM_ENABLE_SHARED
+ AC_ENABLE_SHARED([])
  if test "$OS" = linux && test $ac_cv_sizeof_off_t -lt 8; then
 @@ -454,7 +456,7 @@ If you can't find one try:
          http://web.mit.edu/tytso/www/linux/e2fsprogs.html])]
@@ -66,7 +66,7 @@ index d034064e..cdb45d0b 100644
  
  dnl NOTE: We need to remove the gl_cv_ignore_unused_libraries flag if we
 diff --git a/libparted/Makefile.am b/libparted/Makefile.am
-index dc624cf1..ccf8a6a1 100644
+index db29a189..b2b910e1 100644
 --- a/libparted/Makefile.am
 +++ b/libparted/Makefile.am
 @@ -48,7 +48,8 @@ libparted_la_SOURCES  = debug.c			\
@@ -1378,7 +1378,7 @@ index 00000000..4c690e5f
 +	disk_ops:	&freebsd_disk_ops
 +};
 diff --git a/libparted/architecture.c b/libparted/architecture.c
-index 88075fbb..f0ff3f34 100644
+index 4020f98b..824ece69 100644
 --- a/libparted/architecture.c
 +++ b/libparted/architecture.c
 @@ -34,6 +34,9 @@ ped_set_architecture ()
@@ -1409,7 +1409,7 @@ index a6ec8fb8..47a3a55f 100644
  #include <stddef.h>
  #include <stdlib.h>
 diff --git a/libparted/labels/bsd.c b/libparted/labels/bsd.c
-index 238b8afd..cecf9af1 100644
+index 38bc64c1..bd36babc 100644
 --- a/libparted/labels/bsd.c
 +++ b/libparted/labels/bsd.c
 @@ -27,6 +27,7 @@
@@ -1421,7 +1421,7 @@ index 238b8afd..cecf9af1 100644
  #if ENABLE_NLS
  #  include <libintl.h>
 diff --git a/libparted/labels/sun.c b/libparted/labels/sun.c
-index 27183830..b4d917b7 100644
+index 5ed28869..09b82cbe 100644
 --- a/libparted/labels/sun.c
 +++ b/libparted/labels/sun.c
 @@ -26,6 +26,7 @@

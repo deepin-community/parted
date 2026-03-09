@@ -1,4 +1,4 @@
-From 669bb1895c548465eb970e556f0944f344756d86 Mon Sep 17 00:00:00 2001
+From 20f1477293d180b2141ae7f1047ff5df84d42826 Mon Sep 17 00:00:00 2001
 From: Colin Watson <cjwatson@ubuntu.com>
 Date: Sat, 9 Aug 2014 16:23:26 +0200
 Subject: Probe LVM logical volumes again
@@ -18,7 +18,7 @@ Patch-Name: probe-lvs-again.patch
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/libparted/arch/linux.c b/libparted/arch/linux.c
-index de80acf0..9bae57fa 100644
+index f6f72360..3bad1e6e 100644
 --- a/libparted/arch/linux.c
 +++ b/libparted/arch/linux.c
 @@ -608,8 +608,8 @@ _probe_dm_devices ()

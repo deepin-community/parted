@@ -1,4 +1,4 @@
-From 0bfc0b294d45c347b555fe8771edec805f4a248a Mon Sep 17 00:00:00 2001
+From 1bb66d74adb068f467668aa6f2cd36775cb63fee Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 28 Mar 2014 17:09:46 +0000
 Subject: Add FreeBSD UFS support
@@ -13,7 +13,7 @@ some persons prefer to not use slices.
 This patch is used by debian-installer on Debian GNU/kFreeBSD for some
 months already.
 
-Last-Update: 2021-01-29
+Last-Update: 2023-06-12
 
 Patch-Name: freebsd-ufs.patch
 ---
@@ -26,7 +26,7 @@ Patch-Name: freebsd-ufs.patch
  create mode 100644 tests/t2500-freebsd-ufs.sh
 
 diff --git a/libparted/fs/ufs/ufs.c b/libparted/fs/ufs/ufs.c
-index d4ba5f0c..672a91e6 100644
+index d2bf4214..08ed5603 100644
 --- a/libparted/fs/ufs/ufs.c
 +++ b/libparted/fs/ufs/ufs.c
 @@ -45,6 +45,7 @@
@@ -180,7 +180,7 @@ index d4ba5f0c..672a91e6 100644
  	ped_file_system_type_unregister (&ufs_type_sun);
  }
 diff --git a/libparted/labels/dos.c b/libparted/labels/dos.c
-index 9508ceba..37fd1642 100644
+index 256f365d..95737d56 100644
 --- a/libparted/labels/dos.c
 +++ b/libparted/labels/dos.c
 @@ -89,6 +89,7 @@ static const char MBR_BOOT_CODE[] = {
@@ -191,7 +191,7 @@ index 9508ceba..37fd1642 100644
  #define PARTITION_HFS		0xaf
  #define PARTITION_SUN_UFS	0xbf
  #define PARTITION_DELL_DIAG	0xde
-@@ -1515,6 +1516,8 @@ msdos_partition_set_system (PedPartition* part,
+@@ -1610,6 +1611,8 @@ msdos_partition_set_system (PedPartition* part,
  		dos_data->system = PARTITION_UDF;
  	else if (!strcmp (fs_type->name, "sun-ufs"))
  		dos_data->system = PARTITION_SUN_UFS;
@@ -201,21 +201,21 @@ index 9508ceba..37fd1642 100644
  		dos_data->system = PARTITION_LINUX_SWAP;
  	else
 diff --git a/libparted/labels/gpt.c b/libparted/labels/gpt.c
-index 93f7add2..5c137300 100644
+index 780fb705..130b9bd1 100644
 --- a/libparted/labels/gpt.c
 +++ b/libparted/labels/gpt.c
-@@ -164,6 +164,10 @@ typedef struct
-     ((efi_guid_t) { PED_CPU_TO_LE32 (0xbc13c2ff), PED_CPU_TO_LE16 (0x59e6), \
-                     PED_CPU_TO_LE16 (0x4262), 0xa3, 0x52, \
-                     { 0xb2, 0x75, 0xfd, 0x6f, 0x71, 0x72 }})
+@@ -169,6 +169,10 @@ typedef struct
+     ((efi_guid_t) { PED_CPU_TO_LE32 (0x933ac7e1), PED_CPU_TO_LE16 (0x2eb4), \
+                     PED_CPU_TO_LE16 (0x4f13), 0xb8, 0x44, \
+                     { 0x0e, 0x14, 0xe2, 0xae, 0xf9, 0x15 }})
 +#define PARTITION_FREEBSD_UFS_GUID \
 +    ((efi_guid_t) { PED_CPU_TO_LE32 (0x516e7cb6), PED_CPU_TO_LE16 (0x6ecf), \
 +                    PED_CPU_TO_LE16 (0x11d6), 0x8f, 0xf8, \
 +                    { 0x00, 0x02, 0x2d, 0x09, 0x71, 0x2b }})
  
- struct __attribute__ ((packed)) _GuidPartitionTableHeader_t
+ struct flag_uuid_mapping_t
  {
-@@ -1555,6 +1559,11 @@ gpt_partition_set_system (PedPartition *part,
+@@ -1490,6 +1494,11 @@ gpt_partition_set_system (PedPartition *part,
            gpt_part_data->type = PARTITION_SWAP_GUID;
            return 1;
          }
@@ -228,10 +228,10 @@ index 93f7add2..5c137300 100644
  
    gpt_part_data->type = PARTITION_LINUX_DATA_GUID;
 diff --git a/tests/Makefile.am b/tests/Makefile.am
-index 0d7c022c..4112ac1f 100644
+index fa27b44d..da093119 100644
 --- a/tests/Makefile.am
 +++ b/tests/Makefile.am
-@@ -52,6 +52,7 @@ TESTS = \
+@@ -57,6 +57,7 @@ TESTS = \
    t2320-dos-extended-noclobber.sh \
    t2400-dos-hfs-partition-type.sh \
    t2410-dos-udf-partition-type.sh \

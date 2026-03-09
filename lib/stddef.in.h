@@ -1,24 +1,24 @@
 /* A substitute for POSIX 2008 <stddef.h>, for platforms that have issues.
 
-   Copyright (C) 2009-2020 Free Software Foundation, Inc.
+   Copyright (C) 2009-2023 Free Software Foundation, Inc.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Eric Blake.  */
 
 /*
- * POSIX 2008 <stddef.h> for platforms that have issues.
+ * POSIX 2008 and ISO C 23 <stddef.h> for platforms that have issues.
  * <https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/stddef.h.html>
  */
 
@@ -42,12 +42,37 @@
 #   define _GL_STDDEF_WINT_T
 #  endif
 #  @INCLUDE_NEXT@ @NEXT_STDDEF_H@
+   /* On TinyCC, make sure that the macros that indicate the special invocation
+      convention get undefined.  */
+#  undef __need_wchar_t
+#  undef __need_size_t
+#  undef __need_ptrdiff_t
+#  undef __need_NULL
+#  undef __need_wint_t
 # endif
 
 #else
 /* Normal invocation convention.  */
 
 # ifndef _@GUARD_PREFIX@_STDDEF_H
+
+/* On AIX 7.2, with xlc in 64-bit mode, <stddef.h> defines max_align_t to a
+   type with alignment 4, but 'long' has alignment 8.  */
+#  if defined _AIX && defined __LP64__
+#   if !GNULIB_defined_max_align_t
+#    ifdef _MAX_ALIGN_T
+/* /usr/include/stddef.h has already defined max_align_t.  Override it.  */
+typedef long rpl_max_align_t;
+#     define max_align_t rpl_max_align_t
+#    else
+/* Prevent /usr/include/stddef.h from defining max_align_t.  */
+typedef long max_align_t;
+#     define _MAX_ALIGN_T
+#    endif
+#    define __CLANG_MAX_ALIGN_T_DEFINED
+#    define GNULIB_defined_max_align_t 1
+#   endif
+#  endif
 
 /* The include_next requires a split double-inclusion guard.  */
 
@@ -86,11 +111,13 @@
    we are currently compiling with gcc.
    On MSVC, max_align_t is defined only in C++ mode, after <cstddef> was
    included.  Its definition is good since it has an alignment of 8 (on x86
-   and x86_64).  */
-#if defined _MSC_VER && defined __cplusplus
+   and x86_64).
+   Similarly on OS/2 kLIBC.  */
+#if (defined _MSC_VER || (defined __KLIBC__ && !defined __LIBCN__)) \
+    && defined __cplusplus
 # include <cstddef>
 #else
-# if ! (@HAVE_MAX_ALIGN_T@ || defined _GCC_MAX_ALIGN_T)
+# if ! (@HAVE_MAX_ALIGN_T@ || (defined _GCC_MAX_ALIGN_T && !defined __clang__))
 #  if !GNULIB_defined_max_align_t
 /* On the x86, the maximum storage alignment of double, long, etc. is 4,
    but GCC's C11 ABI for x86 says that max_align_t has an alignment of 8,
@@ -111,9 +138,47 @@ typedef union
   long int __i _GL_STDDEF_ALIGNAS (long int);
 } rpl_max_align_t;
 #   define max_align_t rpl_max_align_t
+#   define __CLANG_MAX_ALIGN_T_DEFINED
 #   define GNULIB_defined_max_align_t 1
 #  endif
 # endif
+#endif
+
+/* ISO C 23 § 7.21.1 The unreachable macro  */
+#ifndef unreachable
+
+/* Code borrowed from verify.h.  */
+# ifndef _GL_HAS_BUILTIN_UNREACHABLE
+#  if defined __clang_major__ && __clang_major__ < 5
+#   define _GL_HAS_BUILTIN_UNREACHABLE 0
+#  elif 4 < __GNUC__ + (5 <= __GNUC_MINOR__)
+#   define _GL_HAS_BUILTIN_UNREACHABLE 1
+#  elif defined __has_builtin
+#   define _GL_HAS_BUILTIN_UNREACHABLE __has_builtin (__builtin_unreachable)
+#  else
+#   define _GL_HAS_BUILTIN_UNREACHABLE 0
+#  endif
+# endif
+
+# if _GL_HAS_BUILTIN_UNREACHABLE
+#  define unreachable() __builtin_unreachable ()
+# elif 1200 <= _MSC_VER
+#  define unreachable() __assume (0)
+# else
+/* Declare abort(), without including <stdlib.h>.  */
+extern
+#  if defined __cplusplus
+"C"
+#  endif
+_Noreturn
+void abort (void)
+#  if defined __cplusplus && (__GLIBC__ >= 2)
+throw ()
+#  endif
+;
+#  define unreachable() abort ()
+# endif
+
 #endif
 
 #  endif /* _@GUARD_PREFIX@_STDDEF_H */

@@ -1,6 +1,6 @@
-This is parted.info, produced by makeinfo version 6.7 from parted.texi.
+This is parted.info, produced by makeinfo version 6.8 from parted.texi.
 
-Copyright (C) 1999-2014, 2019-2021 Free Software Foundation, Inc.
+Copyright (C) 1999-2023 Free Software Foundation, Inc.
 
   Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3 or
@@ -25,7 +25,7 @@ GNU Parted User Manual
 This file documents the use of GNU Parted, a program for creating and
 manipulating partition tables.
 
-  This document applies roughly to version *3.4* of GNU Parted.
+  This document applies roughly to version *3.6* of GNU Parted.
 
   The original version was written by Andrew Clausen in text format.
 Richard M. Kreuter translated it into Texinfo format in 2002, to be
@@ -71,17 +71,17 @@ power failure) and performs many safety checks.  However, there could be
 bugs in GNU Parted, so you should back up your important files before
 running Parted.
 
-  The GNU Parted homepage is <http://www.gnu.org/software/parted>.  The
+  The GNU Parted homepage is <https://www.gnu.org/software/parted>.  The
 library and frontend themselves can be downloaded from
-<ftp://ftp.gnu.org/gnu/parted>.  You can also find a listing of mailing
-lists, notes for contributing and more useful information on the web
-site.
+<https://ftp.gnu.org/gnu/parted>.  You can also find a listing of
+mailing lists, notes for contributing and more useful information on the
+web site.
 
   Please send bug reports to <bug-parted@gnu.org>.  When sending bug
 reports, please include the version of GNU Parted.  Please include the
 output from these commands (for disk '/dev/hda'):
 
-     # parted /dev/hda print unit s print unit chs print
+     # parted /dev/hda unit s print free
 
   Feel free to ask for help on this list -- just check that your
 question isn't answered here first.  If you don't understand the
@@ -101,6 +101,14 @@ If you're installing or compiling Parted yourself, you'll need to have
 some other programs installed.  If you are compiling Parted, you will
 need both the normal and devel packages of these programs installed:
 
+   * GNU parted source is available either as a source tarball:
+
+     <https://git.savannah.gnu.org/gitweb/?p=parted.git>
+
+     or using git (See the README-hacking instructions):
+
+     <https://git.savannah.gnu.org/gitweb/?p=parted.git>
+
    * libuuid, part of the e2fsprogs package.  If you don't have this,
      you can get it from:
 
@@ -111,7 +119,7 @@ need both the normal and devel packages of these programs installed:
 
    * GNU Readline (optional), available from
 
-     <ftp://ftp.gnu.org/gnu/readline>
+     <https://ftp.gnu.org/gnu/readline>
 
      If you are compiling Parted, and you don't have readline, you can
      disable Parted's readline support with the '--disable-readline'
@@ -120,7 +128,7 @@ need both the normal and devel packages of these programs installed:
    * GNU gettext (or compatible software) for compilation, if
      internationalisation support is desired.
 
-     <ftp://ftp.gnu.org/gnu/gettext>
+     <https://ftp.gnu.org/gnu/gettext>
 
 
 File: parted.info,  Node: Supported Platforms,  Next: License,  Prev: Software Required,  Up: Introduction
@@ -197,7 +205,7 @@ If you want to compile GNU Parted, this is generally done with:
 
 If you want to run GNU Parted on a machine without GNU/Linux installed,
 or you want to modify a root or boot partition, use GParted Live:
-<http://gparted.sourceforge.net/livecd.php>.
+<https://gparted.org/livecd.php>.
 
 
 File: parted.info,  Node: Using Parted,  Next: Related information,  Prev: Introduction,  Up: Top
@@ -326,9 +334,28 @@ begin with a hyphen, commands do not:
 '--help'
      display a help message
 
+'-l'
+'--list'
+     lists partition layout on all block devices
+
+'-m'
+'--machine'
+     display output in machine parseable format
+
+'-j'
+'--json'
+     display output in JSON format
+
 '-s'
 '--script'
      never prompt the user
+
+'-f'
+'--fix'
+     automatically answer exceptions with "fix" in script mode, which is
+     useful for: GPT header not including full disk size; moving the
+     backup GPT table to the end of the disk; MAC fix missing partition
+     map entry; etc.
 
 '-a alignment-type'
 '--align alignment-type'
@@ -351,6 +378,7 @@ GNU Parted provides the following commands:
 
 * align-check::
 * disk_set::
+* disk_toggle::
 * help::
 * mklabel::
 * mkpart::
@@ -362,6 +390,8 @@ GNU Parted provides the following commands:
 * rm::
 * select::
 * set::
+* toggle::
+* type::
 * unit::
 
   Note that after version 2.4, the following commands were removed:
@@ -389,7 +419,7 @@ File: parted.info,  Node: align-check,  Next: disk_set,  Up: Command explanation
           1 aligned
 
 
-File: parted.info,  Node: disk_set,  Next: help,  Prev: align-check,  Up: Command explanations
+File: parted.info,  Node: disk_set,  Next: disk_toggle,  Prev: align-check,  Up: Command explanations
 
 2.4.2 disk_set
 --------------
@@ -413,9 +443,19 @@ File: parted.info,  Node: disk_set,  Next: help,  Prev: align-check,  Up: Comman
      Set the PMBR's boot flag.
 
 
-File: parted.info,  Node: help,  Next: mklabel,  Prev: disk_set,  Up: Command explanations
+File: parted.info,  Node: disk_toggle,  Next: help,  Prev: disk_set,  Up: Command explanations
 
-2.4.3 help
+2.4.3 disk_toggle
+-----------------
+
+ -- Command: disk_toggle FLAG
+
+     Toggle the state of the disk flag.
+
+
+File: parted.info,  Node: help,  Next: mklabel,  Prev: disk_toggle,  Up: Command explanations
+
+2.4.4 help
 ----------
 
  -- Command: help [COMMAND]
@@ -431,7 +471,7 @@ File: parted.info,  Node: help,  Next: mklabel,  Prev: disk_set,  Up: Command ex
 
 File: parted.info,  Node: mklabel,  Next: mkpart,  Prev: help,  Up: Command explanations
 
-2.4.4 mklabel
+2.4.5 mklabel
 -------------
 
  -- Command: mklabel LABEL-TYPE
@@ -444,9 +484,12 @@ File: parted.info,  Node: mklabel,  Next: mkpart,  Prev: help,  Up: Command expl
      (1)
 
      LABEL-TYPE must be one of these supported disk labels:
+        * aix
+        * amiga
         * bsd
-        * loop (raw disk access)
+        * dvh
         * gpt
+        * loop (raw disk access)
         * mac
         * msdos
         * pc98
@@ -467,7 +510,7 @@ are all the same thing: partition table, partition map.
 
 File: parted.info,  Node: mkpart,  Next: name,  Prev: mklabel,  Up: Command explanations
 
-2.4.5 mkpart
+2.4.6 mkpart
 ------------
 
  -- Command: mkpart [PART-TYPE NAME FS-TYPE] START END
@@ -487,14 +530,19 @@ File: parted.info,  Node: mkpart,  Next: name,  Prev: mklabel,  Up: Command expl
      NAME may be used with a 'sun' partition table.
 
      FS-TYPE must be one of these supported file systems:
-        * ext2
+        * btrfs
+        * ext2, ext3, ext4
         * fat16, fat32
         * hfs, hfs+, hfsx
-        * linux-swap
-        * NTFS
+        * hp-ufs
+        * jfs
+        * linux-swap, linux-swap(new,old,v0,v1)
+        * nilfs2
+        * ntfs
         * reiserfs
+        * sun-ufs
         * ufs
-        * btrfs
+        * xfs
 
      For example, the following creates a logical partition that will
      contain an ext2 file system.  The partition will start at the
@@ -533,7 +581,7 @@ partitions.  For details, see Arnd Bergman's article,
 
 File: parted.info,  Node: name,  Next: print,  Prev: mkpart,  Up: Command explanations
 
-2.4.6 name
+2.4.7 name
 ----------
 
  -- Command: name NUMBER NAME
@@ -552,35 +600,59 @@ File: parted.info,  Node: name,  Next: print,  Prev: mkpart,  Up: Command explan
 
 File: parted.info,  Node: print,  Next: quit,  Prev: name,  Up: Command explanations
 
-2.4.7 print
+2.4.8 print
 -----------
 
- -- Command: print [NUMBER]
+ -- Command: print [PRINT-TYPE]
 
      Displays the partition table on the device parted is editing, or
      detailed information about a particular partition.
 
+     PRINT-TYPE is optional, and can be one of 'devices', 'free',
+     'list', or 'all'.
+
+     'devices'
+          display all active block devices
+
+     'free'
+          display information about free unpartitioned space on the
+          current block device
+
+     'list, all'
+          display the partition tables of all active block devices
+
      Example:
 
           (parted) print
-          Disk geometry for /dev/hda: 0.000-2445.679 megabytes
-          Disk label type: msdos
-          Minor    Start       End     Type      Filesystem  Flags
-          1          0.031    945.000  primary   fat32       boot, lba
-          2        945.000   2358.562  primary   ext2
-          3       2358.562   2445.187  primary   linux-swap
-          (parted) print 1
-          Minor: 1
-          Flags: boot, lba
-          File System: fat32
-          Size:            945.000Mb (0%)
-          Minimum size:     84.361Mb (0%)
-          Maximum size:   2445.679Mb (100%)
+          Model: ATA Samsung SSD 850 (scsi)
+          Disk /dev/sda: 2684MB
+          Sector size (logical/physical): 512B/512B
+          Partition Table: msdos
+          Disk Flags:
+
+          Number  Start   End     Size    Type     File system     Flags
+           1      1049kB  1000MB  999MB   primary                  boot, lba
+           2      1000MB  2300MB  1299MB  primary  ext2            lba
+           3      2300MB  2500MB  200MB   primary  linux-swap(v1)  lba
+          (parted) print free
+          Model: ATA Samsung SSD 850 (scsi)
+          Disk /dev/sda: 2684MB
+          Sector size (logical/physical): 512B/512B
+          Partition Table: msdos
+          Disk Flags:
+
+          Number  Start   End     Size    Type     File system     Flags
+                  16.4kB  1049kB  1032kB           Free Space
+           1      1049kB  1000MB  999MB   primary                  boot, lba
+           2      1000MB  2300MB  1299MB  primary  ext2            lba
+           3      2300MB  2500MB  200MB   primary  linux-swap(v1)  lba
+                  2500MB  2684MB  185MB            Free Space
+
 
 
 File: parted.info,  Node: quit,  Next: rescue,  Prev: print,  Up: Command explanations
 
-2.4.8 quit
+2.4.9 quit
 ----------
 
  -- Command: quit
@@ -596,51 +668,66 @@ File: parted.info,  Node: quit,  Next: rescue,  Prev: print,  Up: Command explan
 
 File: parted.info,  Node: rescue,  Next: resizepart,  Prev: quit,  Up: Command explanations
 
-2.4.9 rescue
-------------
+2.4.10 rescue
+-------------
 
  -- Command: rescue START END
      Rescue a lost partition that used to be located approximately
      between START and END.  If such a partition is found, Parted will
      ask you if you want to create a partition for it.  This is useful
-     if you accidently deleted a partition with parted's rm command, for
-     example.
+     if you accidentally deleted a partition with parted's rm command,
+     for example.
 
      Example:
 
           (parted) print
-          Disk geometry for /dev/hdc: 0.000-8063.507 megabytes
-          Disk label type: msdos
-          Minor    Start       End     Type      Filesystem  Flags
-          1          0.031   8056.032  primary   ext3
-          (parted) rm
-          Partition number? 1
-          (parted) print
-          Disk geometry for /dev/hdc: 0.000-8063.507 megabytes
-          Disk label type: msdos
-          Minor    Start       End     Type      Filesystem  Flags
+          Model: ATA Samsung SSD 850 (scsi)
+          Disk /dev/sda: 2684MB
+          Sector size (logical/physical): 512B/512B
+          Partition Table: msdos
+          Disk Flags:
 
-     OUCH! We deleted our ext3 partition!!!  Parted comes to the
+          Number  Start   End     Size    Type     File system     Flags
+           1      1049kB  1000MB  999MB   primary                  boot, lba
+           2      1000MB  2300MB  1299MB  primary  ext4            lba
+          (parted) rm
+          Partition number? 2
+          (parted) print
+          Model: ATA Samsung SSD 850 (scsi)
+          Disk /dev/sda: 2684MB
+          Sector size (logical/physical): 512B/512B
+          Partition Table: msdos
+          Disk Flags:
+
+          Number  Start   End     Size    Type     File system     Flags
+           1      1049kB  1000MB  999MB   primary                  boot, lba
+
+     OUCH! We deleted our ext4 partition!!!  Parted comes to the
      rescue...
 
           (parted) rescue
-          Start? 0
-          End? 8056
-          Information: A ext3 primary partition was found at 0.031MB ->
-          8056.030MB.  Do you want to add it to the partition table?
+          Start? 1000
+          End? 2684
+          Information: A ext4 primary partition was found at 1000MB ->
+          2300MB.  Do you want to add it to the partition table?
           Yes/No/Cancel? y
           (parted) print
-          Disk geometry for /dev/hdc: 0.000-8063.507 megabytes
-          Disk label type: msdos
-          Minor    Start       End     Type      Filesystem  Flags
-          1          0.031   8056.032  primary   ext3
+          Model: ATA Samsung SSD 850 (scsi)
+          Disk /dev/sda: 2684MB
+          Sector size (logical/physical): 512B/512B
+          Partition Table: msdos
+          Disk Flags:
+
+          Number  Start   End     Size    Type     File system     Flags
+           1      1049kB  1000MB  999MB   primary                  boot, lba
+           2      1000MB  2300MB  1299MB  primary  ext4            lba
 
      It's back!  :)
 
 
 File: parted.info,  Node: resizepart,  Next: rm,  Prev: rescue,  Up: Command explanations
 
-2.4.10 resizepart
+2.4.11 resizepart
 -----------------
 
  -- Command: resizepart NUMBER END
@@ -656,15 +743,15 @@ File: parted.info,  Node: resizepart,  Next: rm,  Prev: rescue,  Up: Command exp
 
 File: parted.info,  Node: rm,  Next: select,  Prev: resizepart,  Up: Command explanations
 
-2.4.11 rm
+2.4.12 rm
 ---------
 
  -- Command: rm NUMBER
 
-     Removes the partition with number NUMBER.  If you accidently delete
-     a partition with this command, use mkpart to recover it.  Also, you
-     can use the gpart program (*note Related information::) to recover
-     damaged disk labels.
+     Removes the partition with number NUMBER.  If you accidentally
+     delete a partition with this command, use *note rescue:: to recover
+     it.  Also, you can use the gpart program (*note Related
+     information::) to recover damaged disk labels.
 
      Note for msdos disk labels: if you delete a logical partition, all
      logical partitions with a larger partition number will be
@@ -683,14 +770,14 @@ File: parted.info,  Node: rm,  Next: select,  Prev: resizepart,  Up: Command exp
 
 File: parted.info,  Node: select,  Next: set,  Prev: rm,  Up: Command explanations
 
-2.4.12 select
+2.4.13 select
 -------------
 
  -- Command: select DEVICE
 
      Selects the device, DEVICE, for Parted to edit.  The device can be
-     a Linux hard disk device, a partition, a software RAID device or
-     LVM logical volume.
+     a Linux hard disk device, a partition, a software RAID device, LVM
+     logical volume, or disk image file.
 
      Example:
 
@@ -700,9 +787,9 @@ File: parted.info,  Node: select,  Next: set,  Prev: rm,  Up: Command explanatio
      Linux) as the device to edit.
 
 
-File: parted.info,  Node: set,  Next: unit,  Prev: select,  Up: Command explanations
+File: parted.info,  Node: set,  Next: toggle,  Prev: select,  Up: Command explanations
 
-2.4.13 set
+2.4.14 set
 ----------
 
  -- Command: set NUMBER FLAG STATE
@@ -768,9 +855,13 @@ File: parted.info,  Node: set,  Next: unit,  Prev: select,  Up: Command explanat
           (Mac) - this flag should be enabled if the partition is the
           root device to be used by Linux.
 
+     'linux-home'
+          (GPT) - Enable this to indicate that the selected partition is
+          a Linux /home partition.
+
      'swap'
-          (Mac) - this flag should be enabled if the partition is the
-          swap device to be used by Linux.
+          (MS-DOS, GPT, Mac) - this flag should be enabled if the
+          partition is the swap device to be used by Linux.
 
      'hidden'
           (MS-DOS, PC98) - this flag can be enabled to hide partitions
@@ -806,9 +897,37 @@ File: parted.info,  Node: set,  Next: unit,  Prev: select,  Up: Command explanat
      Set the 'boot' flag on partition 1.
 
 
-File: parted.info,  Node: unit,  Prev: set,  Up: Command explanations
+File: parted.info,  Node: toggle,  Next: type,  Prev: set,  Up: Command explanations
 
-2.4.14 unit
+2.4.15 toggle
+-------------
+
+ -- Command: toggle NUMBER FLAG
+
+     Toggle the state of FLAG on partition NUMBER.
+
+
+File: parted.info,  Node: type,  Next: unit,  Prev: toggle,  Up: Command explanations
+
+2.4.16 type
+-----------
+
+ -- Command: type NUMBER ID or UUID
+
+     On MS-DOS set the type-id aka partition id to ID on partition
+     NUMBER.  The id is a value between 0x01 and 0xff, e.g.  the ID for
+     Linux is 0x83.  A list with some IDs is available at
+     <https://en.wikipedia.org/wiki/Partition_type>.
+
+     On GPT set the type-uuid to UUID on partition NUMBER.  E.g.  the
+     UUID for Linux is 0fc63daf-8483-4772-8e79-3d69d8477de4.  A list
+     with some UUIDs is availabe at
+     <https://en.wikipedia.org/wiki/GUID_Partition_Table>.
+
+
+File: parted.info,  Node: unit,  Prev: type,  Up: Command explanations
+
+2.4.17 unit
 -----------
 
  -- Command: unit UNIT
@@ -1449,7 +1568,7 @@ Appendix B This manual's history
 
 This manual was based on the file 'USER' included in GNU Parted version
 1.4.22 source distribution.  The GNU Parted source distribution is
-available at <ftp.gnu.org/gnu/parted>.
+available at <https://ftp.gnu.org/gnu/parted>.
 
   Initial Texinfo formatting by Richard M. Kreuter, 2002.
 
@@ -1476,6 +1595,7 @@ Index
 * building parted:                       Compiling.             (line 6)
 * command description, align-check:      align-check.           (line 6)
 * command description, disk_set:         disk_set.              (line 6)
+* command description, disk_toggle:      disk_toggle.           (line 6)
 * command description, help:             help.                  (line 6)
 * command description, mkindex:          mklabel.               (line 6)
 * command description, mkpart:           mkpart.                (line 6)
@@ -1487,6 +1607,8 @@ Index
 * command description, rm:               rm.                    (line 6)
 * command description, select:           select.                (line 6)
 * command description, set:              set.                   (line 6)
+* command description, toggle:           toggle.                (line 6)
+* command description, type:             type.                  (line 6)
 * command description, unit:             unit.                  (line 6)
 * command syntax:                        Command explanations.  (line 6)
 * commands:                              Using Parted.          (line 6)
@@ -1497,6 +1619,7 @@ Index
 * description of parted:                 Overview.              (line 6)
 * detailed command listing:              Command explanations.  (line 6)
 * disk_set, command description:         disk_set.              (line 6)
+* disk_toggle, command description:      disk_toggle.           (line 6)
 * e2fsprogs:                             Software Required.     (line 6)
 * FDL, GNU Free Documentation License:   GNU Free Documentation License.
                                                                 (line 6)
@@ -1532,45 +1655,50 @@ Index
 * software dependencies:                 Software Required.     (line 6)
 * supported platforms:                   Supported Platforms.   (line 6)
 * terms of distribution:                 License.               (line 6)
+* toggle, command description:           toggle.                (line 6)
+* type, command description:             type.                  (line 6)
 * unit, command description:             unit.                  (line 6)
 
 
 
 Tag Table:
-Node: Top775
-Node: Introduction1578
-Node: Overview2034
-Node: Software Required3561
-Node: Supported Platforms4662
-Node: License5116
-Node: Compiling5720
-Node: Using Parted7000
-Node: Partitioning7419
-Node: Running Parted9057
-Node: Invoking Parted11436
-Node: Command explanations12217
-Node: align-check12682
-Node: disk_set13407
-Node: help14108
-Node: mklabel14391
-Ref: mklabel-Footnote-115270
-Node: mkpart15400
-Ref: mkpart-Footnote-117810
-Node: name18061
-Node: print18578
-Node: quit19466
-Node: rescue19960
-Node: resizepart21485
-Node: rm22033
-Node: select22918
-Node: set23388
-Node: unit27184
-Ref: IEC binary units29567
-Node: Related information31660
-Node: Copying This Manual32482
-Node: GNU Free Documentation License32726
-Node: History57838
-Node: Concept index58643
+Node: Top764
+Node: Introduction1567
+Node: Overview2023
+Node: Software Required3537
+Node: Supported Platforms4881
+Node: License5335
+Node: Compiling5939
+Node: Using Parted7208
+Node: Partitioning7627
+Node: Running Parted9265
+Node: Invoking Parted11644
+Node: Command explanations12854
+Node: align-check13355
+Node: disk_set14080
+Node: disk_toggle14788
+Node: help14995
+Node: mklabel15281
+Ref: mklabel-Footnote-116204
+Node: mkpart16334
+Ref: mkpart-Footnote-118863
+Node: name19114
+Node: print19631
+Node: quit21398
+Node: rescue21892
+Node: resizepart23966
+Node: rm24514
+Node: select25409
+Node: set25897
+Node: toggle29835
+Node: type30037
+Node: unit30674
+Ref: IEC binary units33058
+Node: Related information35151
+Node: Copying This Manual35973
+Node: GNU Free Documentation License36217
+Node: History61329
+Node: Concept index62142
 
 End Tag Table
 

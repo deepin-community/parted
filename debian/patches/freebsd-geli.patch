@@ -1,4 +1,4 @@
-From 60359182dfe3a1345717a1336e5831a64a83e14d Mon Sep 17 00:00:00 2001
+From 981a6a2a87a90b25b83ecfc76f5c82c0fadcbbf8 Mon Sep 17 00:00:00 2001
 From: Robert Millan <rmh@debian.org>
 Date: Fri, 28 Mar 2014 17:09:51 +0000
 Subject: Detection of GEOM encryption devices (GELI)

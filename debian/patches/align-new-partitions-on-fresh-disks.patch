@@ -1,4 +1,4 @@
-From 293b0dce25a0bfa246ebcda9e22fad244898ca6b Mon Sep 17 00:00:00 2001
+From 8b6f34acaadd78d11415144dccf5c4750e3e1d0e Mon Sep 17 00:00:00 2001
 From: Colin Watson <cjwatson@ubuntu.com>
 Date: Wed, 6 Aug 2014 16:07:28 +0200
 Subject: Align new partitions created on fresh disks
@@ -15,7 +15,7 @@ approach of overloading an extra bit on PedDisk.needs_clobber.
 
 Bug-Ubuntu: https://bugs.launchpad.net/bugs/1352252
 Forwarded: no
-Last-Update: 2014-08-06
+Last-Update: 2023-06-26
 
 Patch-Name: align-new-partitions-on-fresh-disks.patch
 ---
@@ -23,23 +23,23 @@ Patch-Name: align-new-partitions-on-fresh-disks.patch
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/libparted/disk.c b/libparted/disk.c
-index 345b9e73..6eff7cab 100644
+index 0db7b5c9..2d6b9d49 100644
 --- a/libparted/disk.c
 +++ b/libparted/disk.c
-@@ -196,6 +196,7 @@ ped_disk_new (PedDevice* dev)
- 		goto error_close_dev;
- 	}
+@@ -198,6 +198,7 @@ ped_disk_new (PedDevice* dev)
  	disk = ped_disk_new_fresh (dev, type);
-+	disk->needs_clobber |= 2;
  	if (!disk)
  		goto error_close_dev;
++	disk->needs_clobber |= 2;
  	if (!type->ops->read (disk))
-@@ -920,7 +921,7 @@ _partition_align (PedPartition* part, const PedConstraint* constraint)
+ 		goto error_destroy_disk;
+ 	disk->needs_clobber = 0;
+@@ -951,7 +952,7 @@ _partition_align (PedPartition* part, const PedConstraint* constraint)
  	PED_ASSERT (disk_type->ops->partition_align != NULL);
  	PED_ASSERT (part->disk->update_mode);
  
 -	if (part->disk->needs_clobber)
-+	if ((part->disk->needs_clobber & 2) != 0)
++	if ((part->disk->needs_clobber & 2) != 0 || !constraint)
  		return 1; /* do not attempt to align partitions while reading them */
  	return disk_type->ops->partition_align (part, constraint);
  }
