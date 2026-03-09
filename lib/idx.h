@@ -1,19 +1,20 @@
 /* A type for indices and sizes.
+   Copyright (C) 2020-2023 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-   Copyright (C) 2020 Free Software Foundation, Inc.
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
+   The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
 
 #ifndef _IDX_H
 #define _IDX_H
@@ -21,11 +22,12 @@
 /* Get ptrdiff_t.  */
 #include <stddef.h>
 
-/* Get PTRDIFF_WIDTH.  */
+/* Get PTRDIFF_MAX.  */
 #include <stdint.h>
 
 /* The type 'idx_t' holds an (array) index or an (object) size.
-   Its implementation is a signed integer type, capable of holding the values
+   Its implementation promotes to a signed integer type,
+   which can hold the values
      0..2^63-1 (on 64-bit platforms) or
      0..2^31-1 (on 32-bit platforms).
 
@@ -53,6 +55,26 @@
 
      * Because 'size_t' is an unsigned type, and a signed type is better.
        See above.
+
+   Why not use 'ssize_t'?
+
+     * 'ptrdiff_t' is more portable; it is standardized by ISO C
+       whereas 'ssize_t' is standardized only by POSIX.
+
+     * 'ssize_t' is not required to be as wide as 'size_t', and some
+       now-obsolete POSIX platforms had 'size_t' wider than 'ssize_t'.
+
+     * Conversely, some now-obsolete platforms had 'ptrdiff_t' wider
+       than 'size_t', which can be a win and conforms to POSIX.
+
+   Won't this cause a problem with objects larger than PTRDIFF_MAX?
+
+     * Typical modern or large platforms do not allocate such objects,
+       so this is not much of a problem in practice; for example, you
+       can safely write 'idx_t len = strlen (s);'.  To port to older
+       small platforms where allocations larger than PTRDIFF_MAX could
+       in theory be a problem, you can use Gnulib's ialloc module, or
+       functions like ximalloc in Gnulib's xalloc module.
 
    Why not use 'ptrdiff_t' directly?
 
@@ -87,32 +109,26 @@
        or to the C standard.  Several programming languages (Ada, Haskell,
        Common Lisp, Pascal) already have range types.  Such range types may
        help producing good code and good warnings.  The type 'idx_t' could
-       then be typedef'ed to a (signed!) range type.  */
+       then be typedef'ed to a range type that is signed after promotion.  */
 
-#if 0
-/* In the future, idx_t could be typedef'ed to a signed range type.  */
-/* Note: The clang "extended integer types", supported in Clang 11 or newer
+/* In the future, idx_t could be typedef'ed to a signed range type.
+   The clang "extended integer types", supported in Clang 11 or newer
    <https://clang.llvm.org/docs/LanguageExtensions.html#extended-integer-types>,
    are a special case of range types.  However, these types don't support binary
    operators with plain integer types (e.g. expressions such as x > 1).
    Therefore, they don't behave like signed types (and not like unsigned types
    either).  So, we cannot use them here.  */
-typedef <some_range_type> idx_t;
-#else
-/* Use the signed type 'ptrdiff_t' by default.  */
+
+/* Use the signed type 'ptrdiff_t'.  */
 /* Note: ISO C does not mandate that 'size_t' and 'ptrdiff_t' have the same
-   size, but it is so an all platforms we have seen since 1990.  */
+   size, but it is so on all platforms we have seen since 1990.  */
 typedef ptrdiff_t idx_t;
-#endif
 
 /* IDX_MAX is the maximum value of an idx_t.  */
-#if defined UNSIGNED_IDX_T
-# define IDX_MAX SIZE_MAX
-#else
-# define IDX_MAX PTRDIFF_MAX
-#endif
+#define IDX_MAX PTRDIFF_MAX
 
-/* IDX_WIDTH is the number of bits in an idx_t (31 or 63).  */
-#define IDX_WIDTH (PTRDIFF_WIDTH - 1)
+/* So far no need has been found for an IDX_WIDTH macro.
+   Perhaps there should be another macro IDX_VALUE_BITS that does not
+   count the sign bit and is therefore one less than PTRDIFF_WIDTH.  */
 
 #endif /* _IDX_H */

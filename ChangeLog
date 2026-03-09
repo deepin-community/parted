@@ -1,4 +1,673 @@
+2023-04-10  Brian C. Lane  <bcl@redhat.com>
+
+	version 3.6
+	* NEWS: Record release date.
+
+	NEWS: Releasing stable version 3.6
+
+2023-03-24  Brian C. Lane  <bcl@redhat.com>
+
+	maint: post-release administrivia
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* cfg.mk (old_NEWS_hash): Auto-update.
+
+	version 3.5.28
+	* NEWS: Record release date.
+
+	NEWS: Update news
+
+	tests: Fix syntax-check warning about grep -q
+
+	maint: Update copyright statements to 2022
+	By running make update-copyright
+
+	maint: Bump library REVISION number for release
+
+	maint: Update README-release
+
+	maint: Update to latest gnulib and bootstrap script
+
+2023-03-17  Brian C. Lane  <bcl@redhat.com>
+
+	parted: Fix ending sector location when using kibi IEC suffix
+	This fixes a bug when using KiB to specify the ending location of a
+	partition. It was not subtracting 1s like it does with the other units
+	because it was looking for a 'k' not a 'K'.
+
+	This also fixes a quirk of the suffix checking code, it would check for
+	matching case, but converting to the actual IEC value was case
+	insensitive. This now uses common functions for the matching so that
+	case doesn't matter.
+
+	It also adds tests to check for the fix.
+
+	The only change in behavior is that using KiB to specify the ending
+	location of a partition will now correctly create the end 1s lower than
+	the specified location like it does for MiB, GiB, etc.
+
+2023-02-15  Brian C. Lane  <bcl@redhat.com>
+
+	tests: Fix formatting and snprintf warnings in tests.
+	The assert message includes sector values, which are long long int, so
+	use the proper formatting of %lld.
+
+	The snprintf warning complained about trying to write 258 bytes so I
+	bumped the buffer size up to 259. The return value is already being
+	checked for truncation so this is just to keep the compiler happy
+	without having to suppress the warning.
+
+2023-02-15  Brian C. Lane  <bcl@redhat.com>
+
+	ui: Add checks for prompt being NULL
+	Also removes a cast from const char* to char* when passing to readline
+	that doesn't appear to be necessary any longer.
+
+	Added asserts to make sure prompt isn't NULL after strdup and realloc
+	calls.
+
+2023-02-15  Brian C. Lane  <bcl@redhat.com>
+
+	strlist: Handle realloc error in wchar_to_str
+	It could return a NULL if the realloc fails. This handles the failure in
+	the same way as other failures in wchar_to_str, it exits immediately
+	with an error message.
+
+	libparted: Fix potential NULL dereference in ped_disk_next_partition
+
+	filesys: Check for null from close_fn
+	If the filesystem type name isn't known it can return a NULL.
+
+2023-02-07  Brian C. Lane  <bcl@redhat.com>
+
+	tests: Fixing libparted test framework usage
+	The fail and fail_if functions from libcheck are deprecated, replace
+	them with ck_abort_msg and ck_assert_msg. Note that the logic of assert
+	is the opposite of fail_if.
+
+2023-02-06  Brian C. Lane  <bcl@redhat.com>
+
+	libparted: Fix problem with creating 1s partitions
+	There was a 1-off error in _partition_get_overlap_constraint that
+	prevented partitions from being created in 1s free space. You could
+	create 1s partitions as long they were done in order, but not after
+	leaving 'holes'.
+
+	This fixes this and adds tests for it on msdos and gpt disklabels.
+
+2022-12-13  Brian C. Lane  <bcl@redhat.com>
+
+	tests: XFS requires a minimum size of 300M
+
+2022-12-13  Mike Fleetwood  <mike.fleetwood@googlemail.com>
+
+	gpt: Add no_automount partition flag
+	Add user requested support for GPT partition type attribute bit 63 [1]
+	so the no-auto flag in the systemd originated Discoverable Partitions
+	Specification [2] can be manipulated.  The UEFI specification [3] says
+	partition attribute bits 48 to 63 are partition type specific, however
+	the DPS [2] and Microsoft [4] use the bit 63 to mean no automounting /
+	assign no drive letter and apply it to multiple partition types so don't
+	restrict its application.
+
+	[1] Request for GPT partition attribute bit 63 "no automount" editing
+	    support
+	    https://gitlab.gnome.org/GNOME/gparted/-/issues/214
+	[2] The Discoverable Partitions Specification (DPS),
+	    Partition Attribute Flags
+	    https://uapi-group.org/specifications/specs/discoverable_partitions_specification/
+	[3] UEFI Specification, version 2.8,
+	    Table 24. Defined GPT Partition Entry - Attributes
+	    https://uefi.org/sites/default/files/resources/UEFI_Spec_2_8_final.pdf
+	[4] CREATE_PARTITION_PARAMETERS structure (vds.h)
+	    https://learn.microsoft.com/en-gb/windows/win32/api/vds/ns-vds-create_partition_parameters
+
+2022-09-30  Arvin Schnell  <aschnell@suse.com>
+
+	parted: Add display of GPT UUIDs in JSON output
+	This adds 2 new disk type features, one for the whole disk UUID and
+	another for the per-partition UUID. It adds ped_disk_get_uuid and
+	ped_partition_get_uuid functions to retrieve them.
+
+	It adds them to the JSON output on GPT disklabeled disks as "uuid" in
+	the disk and partitions sections of the JSON output.
+
+2022-08-15  Brian C. Lane  <bcl@redhat.com>
+
+	tests: Add a libparted test for ped_partition_set_system on msdos
+	Test the libparted API to make sure the flag is not cleared by calling
+	ped_partition_set_system.
+
+2022-08-15  Brian C. Lane  <bcl@redhat.com>
+
+	libparted: Fix handling of msdos partition types
+	This restores the previous behavior by testing the partition type
+	against the list of known types and skipping the filesystem type reset.
+	Now the sequence of:
+
+	ped_partition_new(...)
+	ped_partition_set_flag(part, PED_PARTITION_BLS_BOOT, 1);
+	ped_partition_set_system(part, ped_file_system_type_get("ext4"));
+
+	Will keep the type set to PED_PARTITION_BLS_BOOT, which is how it used
+	to behave.
+
+2022-08-15  Brian C. Lane  <bcl@redhat.com>
+
+	tests: Add a libparted test for ped_partition_set_system on gpt
+	Test the libparted API to make sure the flag is not cleared by calling
+	ped_partition_set_system.
+
+2022-08-15  Brian C. Lane  <bcl@redhat.com>
+
+	libparted: Fix handling of gpt partition types
+	This restores the previous behavior by testing the GUID against the list
+	of known types and skipping the filesystem GUID reset. Now the sequence
+	of:
+
+	ped_partition_new(...)
+	ped_partition_set_flag(part, PED_PARTITION_BIOS_GRUB, 1);
+	ped_partition_set_system(part, ped_file_system_type_get("ext4"));
+
+	Will keep the GUID set to PED_PARTITION_BIOS_GRUB, which is how it used
+	to behave.
+
+2022-08-04  Brian C. Lane  <bcl@redhat.com>
+
+	disk.in.h: Remove use of enums with #define
+	The preprocessor doesn't evaluate the enum, so it ends up being 0, which
+	causes problems for library users like pyparted which try to use the _LAST
+	value to conditionally include support for newer flags.
+
+	Instead just define the int that is the first and last entry in each enum.
+
+	Thanks to adamw and dcantrell for help arriving at a solution.
+
+2022-07-27  Arvin Schnell  <aschnell@suse.com>
+
+	parted: Simplify code for json output
+	_PedDiskOps::get_max_primary_partition_count is always available, the
+	macro PT_op_function_initializers ensures it. So use
+	ped_disk_get_max_primary_partition_count instead of
+	_PedDiskOps::get_max_primary_partition_count directly.
+
+	libparted: Fix check for availability of _type_id functions
+	Fix a copy/paste error. In practice this didn't cause any problems
+	because the *_set_type_id and *_get_type_id are either both NULL or both
+	set to the function.
+
+2022-05-13  Brian C. Lane  <bcl@redhat.com>
+
+	tests: t3200-type-change now passes
+
+	parted: Reset the filesystem type when changing the id/uuid
+	Without this the print command keeps showing the type selected with
+	mkpart, which doesn't match the id/uuid set by the user. So rescan the
+	partition for a filesystem.
+
+2022-05-13  Arvin Schnell  <aschnell@suse.com>
+
+	libparted: add swap flag for DASD label
+	Support the swap flag and fix reading flags from disk. Also
+	cleanup code by dropping the 2 flags "raid" and "lvm" from
+	DasdPartitionData and instead use "system" directly.
+
+	parted: add type command
+	Include the partition type-id and type-uuid in the JSON
+	output. Also add the the command 'type' to set them. Remove
+	redundant flags from DosPartitionData and use only the system
+	variable.
+
+2022-04-18  Brian C. Lane  <bcl@redhat.com>
+
+	maint: post-release administrivia
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* cfg.mk (old_NEWS_hash): Auto-update.
+
+	version 3.5
+	* NEWS: Record release date.
+
+	NEWS: Mention gnulib update
+
+	maint: Update to latest gnulib and bootstrap script
+
+2022-04-05  Brian C. Lane  <bcl@redhat.com>
+
+	maint: post-release administrivia
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* cfg.mk (old_NEWS_hash): Auto-update.
+
+	version 3.4.64.2
+	* NEWS: Record release date.
+
+	NEWS: Mention bugfix
+
+2022-03-31  Benno Schulenberg  <bensberg@telfort.nl>
+
+	bug#54649: [PATCH] usage: remove the mention of "a particular partition"
+	This complements commit b20227adf5 from five months ago.
+
+2022-03-30  Brian C. Lane  <bcl@redhat.com>
+
+	maint: post-release administrivia
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* cfg.mk (old_NEWS_hash): Auto-update.
+
+	version 3.4.64
+	* NEWS: Record release date.
+
+2022-03-29  Brian C. Lane  <bcl@redhat.com>
+
+	NEWS: Add new features and bugs
+
+2022-03-28  Brian C. Lane  <bcl@redhat.com>
+
+	doc: Add KiB and mention rescue in documentation
+
+2022-03-25  Brian C. Lane  <bcl@redhat.com>
+
+	configure.ac: Add AC_CONFIG_MACRO_DIR
+
+	configure.ac: Add -Wno-portability
+	This is to quiet automake warnings about Makefile.am files using GNU
+	make extensions like pattern rules.
+
+	configure.ac: Update macros for autoconf 2.71
+
+	tests: Remove trailing blanks
+
+	parted: Fix config.h include in jsonwrt.c
+
+	libparted: Fix syntax-check sc_avoid_if_before_free error
+	It is safe to free even if they are NULL.
+
+2022-03-23  Brian C. Lane  <bcl@redhat.com>
+
+	gpt: Include xalloc-oversized.h
+
+	maint: Add ./lib/malloc and libparted-fs-resize.pc to .gitignore
+
+	maint: Update copyright statements to 2022
+	By running make update-copyright
+
+	maint: Bump library REVISION number for release
+
+	maint: Update to latest gnulib and bootstrap script
+
+2021-12-01  Brian C. Lane  <bcl@redhat.com>
+
+	doc: Add bios_grub to parted manpage
+
+2021-10-06  Brian C. Lane  <bcl@redhat.com>
+
+	docs: Update documentation to be consistent
+	This fixes some missing commands in the parted.texi file used to
+	generate the web manual and info document. It also removes documentation
+	for the never-implemented 'print NUMBER' command which only returns 1.
+
+	The parted manpage has been updated to document the available print
+	options, disk_set, and disk_toggle commands.
+
+2021-09-30  Brian C. Lane  <bcl@redhat.com>
+
+	gpt: Revert to filesystem GUID when setting flag to off
+
+	tests: Add a test to make sure GPT GUIDs default to filesystem
+	When no flag is set on a GPT partition the GUID should fall back to the
+	filesystem type for fat32, swap, and hfs+ and if no filesystem is found
+	it should default to linux filesystem data type, showing no filesystem
+	and no flags.
+
+	doc: Document gpt linux-home flag
+
+2021-09-30  Arvin Schnell  <aschnell@suse.com>
+
+	gpt: Add linux-home flag
+	This sets the partition GUID to the linux home type:
+	933AC7E1-2EB4-4F13-B844-0E14E2AEF915
+
+2021-09-29  Arvin Schnell  <aschnell@suse.com>
+
+	gpt: Map PED_PARTITON_ flags to GUID values
+	Drop the 14 flags from _GPTPartitionData that correspond to a
+	partition type/uuid. Use the type/uuid directly instead.
+
+2021-09-23  Arvin Schnell  <aschnell@suse.com>
+
+	keep GUID specific attributes
+	Keep GUID specific attributes when writing GPT.
+
+2021-09-22  Colin Watson  <cjwatson@ubuntu.com>
+
+	hurd: Implement partition table rereading
+	We have to tell both the device for the drive itself, it case it
+	implements the partitioned devices, and tell the partition devices
+	to go away, in case they are implemented on their own by using parted.
+
+2021-09-22  Samuel Thibault  <samuel.thibault@ens-lyon.org>
+
+	hurd: Support rumpdisk-based device names
+
+2021-09-22  Colin Watson  <cjwatson@ubuntu.com>
+
+	hurd: Fix partition paths
+	We have always had an 's' to separate drive number from partition
+	number.
+
+2021-08-25  Arvin Schnell  <aschnell@suse.com>
+
+	parted: Add --json cmdline switch to output JSON
+	This outputs the disk's details as a JSON object. eg. a disk image with
+	a single partition from 1M to 100M:
+
+	{
+	   "disk": {
+	      "path": "/root/disk1.img",
+	      "size": "2097152s",
+	      "model": "",
+	      "transport": "file",
+	      "logical-sector-size": 512,
+	      "physical-sector-size": 512,
+	      "label": "gpt",
+	      "max-partitions": 128,
+	      "partitions": [
+	         {
+	            "number": 0,
+	            "start": "34s",
+	            "end": "2047s",
+	            "size": "2014s",
+	            "type": "free"
+	         },{
+	            "number": 1,
+	            "start": "2048s",
+	            "end": "200703s",
+	            "size": "198656s",
+	            "type": "primary",
+	            "name": "root"
+	         },{
+	            "number": 0,
+	            "start": "200704s",
+	            "end": "2097118s",
+	            "size": "1896415s",
+	            "type": "free"
+	         }
+	      ]
+	   }
+	}
+
+2021-08-25  Arvin Schnell  <aschnell@suse.com>
+
+	parted: Allow empty string for partition name
+	This makes it possible to pass an empty string in script mode e.g. to
+	set no partition name (on GPT):
+
+	parted -s ./disk.img mklabel gpt mkpart '""' ext2 1 100M
+
+	Includes a new test for this feature.
+
+2021-08-25  Brian C. Lane  <bcl@redhat.com>
+
+	libparted: Check devpath before passing to strlen
+
+2021-08-10  Brian C. Lane  <bcl@redhat.com>
+
+	libparted: Tell libdevmapper to retry remove when BUSY
+	This sets the libdevmapper retry remove flag, which will retry a remove
+	command if it is BUSY.
+
+	parted already has it's own BUSY retry code, but when run with
+	device-mapper an error can be printed by libdevmapper which can be
+	confusing to the user.
+
+	Resolves: rhbz#1980697
+
+2021-08-10  Brian C. Lane  <bcl@redhat.com>
+
+	parted: Escape colons and backslashes in machine output
+	The device path, device model, and partition name could all contain
+	colons or backslashes. This escapes all of these with a backslash.
+
+	Thanks to Arvin Schnell for the patch.
+
+2021-08-10  Ross Burton  <ross.burton@arm.com>
+
+	tests: check for vfat kernel support and tools
+	t1100-busy-label.sh and t1101-busy-partition.sh create and mount VFAT
+	partitions, so check for both the tools and the kernel support.
+
+	Fixes bug#49594.
+
+2021-08-10  Ross Burton  <ross.burton@arm.com>
+
+	tests: add a helper to check the kernel knows about a file system
+	Some tests need both the file system tools (eg mkfs.vfat) and kernel
+	support (eg vfat kernel module) to pass.
+
+	There are already helpers such as require_fat_ which check for mkfs.vfat,
+	but if the kernel doesn't support the filesystem then mounting the disk
+	image will fail.
+
+	Add require_filesystem_, which checks for either the filesystem name in
+	/proc/filesystems (so it's built-in, or already loaded) or if the name
+	is a valid module (so can be loaded on demand).
+
+2021-08-10  Ross Burton  <ross.burton@arm.com>
+
+	tests: add aarch64 and mips64 as a valid 64-bit machines
+	require_64_bit_ in t-lib-helpers.sh has a hard-coded list of uname
+	machines that are 64-bit, so add aarch64 and mips64 to cover the major
+	architectures.
+
+2021-08-10  Brian C. Lane  <bcl@redhat.com>
+
+	libparted: Add swap flag to msdos disklabel
+	Previously you had to set the filesystem type to one of the linux-swap
+	options at creation time. With this change you can now toggle the
+	partition swap type using the 'swap' partition flag in the same way that
+	you can on gpt disklabels.
+
+	Thanks to Arvin Schnell for this patch.
+
+2021-08-10  Brian C. Lane  <bcl@redhat.com>
+
+	Move Exception Option values into enum
+	Adding enums together doesn't create a new enum value, so when compiling
+	with warnings you will get warnings like:
+
+	warning: case value ‘96’ not in enumerated type
+
+	for PED_EXCEPTION_IGNORE_CANCEL
+
+	This moved the defines into the enum as new values so that they are
+	recognized as valid members of the enum with the values staying the
+	same.
+
+	NOTE: PED_EXCEPTION_OPTION_LAST *MUST* be the last of the individual
+	options, not the combined options.
+
+	Thanks to D. Hugh Redelmeier for this patch.
+
+2021-07-29  Brian C. Lane  <bcl@redhat.com>
+
+	tests/t3000: Use mkfs.hfsplus and fsck.hfsplus for resize tests
+
+2021-07-15  Brian C. Lane  <bcl@redhat.com>
+
+	tests/t3000: Check for hfs and vfat support separately
+	Previously the whole test would be skipped if either mkfs.hfs or
+	mkfs.vfat were not installed, leading to missing test coverage. This
+	change checks for them individually so that the test will run with
+	either or both of them installed
+
+2021-07-14  Brian C. Lane  <bcl@redhat.com>
+
+	tests/t6006: Change dev_size_mb to 10
+	This is backed by memory, so using more than is needed limits the size
+	of the system it can run on.
+
+	tests/t3200: Change dev_size_mb to 10
+	This is backed by memory, so using more than is needed limits the size
+	of the system it can run on.
+
+2021-07-14  Brian C. Lane  <bcl@redhat.com>
+
+	tests/t3000: Change dev_size_mb to 267
+	FAT32 needs a minimum partition size of 256MB so this is as small as we
+	can make it.
+
+	This is backed by memory, so using more than is needed limits the size
+	of the system it can run on.
+
+2021-07-12  Brian C. Lane  <bcl@redhat.com>
+
+	tests/t1701: Change dev_size_mb to 10
+	This is backed by memory, so using more than is needed limits the size
+	of the system it can run on.
+
+	tests/t1102: Change dev_size_mb to 10
+	This is backed by memory, so using more than is needed limits the size
+	of the system it can run on.
+
+	tests/t1101: Change dev_size_mb to 10
+	This is backed by memory, so using more than is needed limits the size
+	of the system it can run on.
+
+	tests/t1100: Change dev_size_mb to 10
+	This is backed by memory, so using more than is needed limits the size
+	of the system it can run on.
+
+2021-06-14  Brian C. Lane  <bcl@redhat.com>
+
+	tests: t9050 Use /dev/zero for temporary file and mkswap
+	and clean up the usage a little bit by giving it a proper name and
+	removing the file when finished.
+
+	tests: t0400 - Work around a mkswap bug by using /dev/zero
+	mkswap gets stuck, in some situations, when operating on a file full of
+	holes (see https://bugzilla.redhat.com/show_bug.cgi?id=1971877) so work
+	around that by using /dev/zero instead of /dev/null
+
+2021-06-11  Brian C. Lane  <bcl@redhat.com>
+
+	libparted: Fix potential memory leak in gpt_write
+	_generate_header() can return with 1 after allocating gpt so it needs to
+	be freed in the error path.
+
+	libparted: Fix warning about buffer size in Atari label
+	When the Atari table is empty it copies 'PARTEDATARI' into the id, and
+	the start and size bytes. This can be confusion, so turn it into a
+	union of the string and the non-empty values.
+
+	parted: Fix memory leaks in do_resizepart
+
+	parted: Free tmp usage inside do_print
+	str_list_create calls gettext_to_wchar which makes a copy of it.
+
+	parted: Fix end_input leak in do_mkpart
+
+	fs: Fix copy-paste error in HFS journal code
+
+	libparted: Fix potential memory leak in sdmmc_get_product_info
+
+	libparted: Fix fd check in _flush_cache
+	In theory open() could return 0 so the correct error value is -1.
+
+2021-02-09  Brian C. Lane  <bcl@redhat.com>
+
+	t0501-duplicate.sh: Add some more disk label types to the duplicate test
+	Add sun, atari, mac, and pc98 to the disklabels that we test
+	ped_disk_duplicate on.
+
+	aix isn't included because it doesn't support adding partitions.
+	dvh doesn't support boot partition
+	loop cannot be partitioned
+
+2021-02-09  Brian C. Lane  <bcl@redhat.com>
+
+	tests: Increase disk size for duplicate test
+	Increase it from 8MiB to 32MiB and start the first partition at 2048
+	sector boundary instead of 32 so that no matter the sector size it will
+	be aligned.
+
+2021-01-28  Cristian Klein  <cristian.klein@elastisys.com>
+
+	tests: Fix t9041-undetected-in-use-16th-partition
+	Sometimes fails with:
+	```
+	+ mkfs.ext3 /dev/sda15
+	mke2fs 1.45.5 (07-Jan-2020)
+	/dev/sda15: Not enough space to build proposed filesystem while setting up superblock
+	```
+
+2021-01-28  Cristian Klein  <cristian.klein@elastisys.com>
+
+	tests: Fix test t1700-probe-fs
+	mkfs.ext3 (see version below) was complaining that the filesystem is too small
+	for a journal, which made the test fail.
+
+	```
+	$ mkfs.ext3 -V
+	mke2fs 1.45.5 (07-Jan-2020)
+		Using EXT2FS Library version 1.45.5
+	```
+
+2021-01-28  Cristian Klein  <cristian.klein@elastisys.com>
+
+	tests: Add tests for --fix
+
+	doc: Document --fix flag
+	Also fix copyright year, to please `make syntax-check`.
+
+2021-01-28  Cristian Klein  <cristian.klein@elastisys.com>
+
+	parted: add --fix to "fix" in script mode
+	Use-case: VMs are booted from images that are smaller than their virtual
+	disk. This means that -- almost by definition -- the secondary GPT
+	header will be "misplaced", i.e., not at the end of the virtual disk.
+
+	Without this patch, parted cannot be used for custom/exotic partitioning
+	when the VM boots (e.g., in cloud-init's `bootcmd`). Specifically, it
+	will fail as follows:
+
+	```
+	$ sudo parted --script /dev/vda "mkpart 2 10GB -1"
+	Warning: Not all of the space available to /dev/vda appears to be used,
+	you can fix the GPT to use all of the space (an extra 500 blocks) or continue with the current setting?
+	Error: Unable to satisfy all constraints on the partition.
+	```
+
+	This happens because, in script mode, exceptions are usually not
+	resolved.
+
+	This patch adds `--fix`. This allows exceptions to be automatically
+	resolved with Fix. As a result, the following command will work:
+
+	```
+	$ sudo parted --fix --script /dev/vda "mkpart 2 10GB -1"
+	```
+
+2021-01-28  Brian C. Lane  <bcl@redhat.com>
+
+	libparted: Add includes for gnulib redefining free
+	gnulib redefines free using #define, causing problems with the
+	pt-common.h file. Work around that by including standard header files as
+	suggested by gnulib maintainer:
+
+	https://lists.gnu.org/archive/html/bug-gnulib/2021-01/msg00315.html
+
 2021-01-27  Brian C. Lane  <bcl@redhat.com>
+
+	maint: Update bootstrap script from latest gnulib
+
+	maint: Update to latest gnulib
+
+	maint: post-release administrivia
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* cfg.mk (old_NEWS_hash): Auto-update.
 
 	version 3.4
 	* NEWS: Record release date.

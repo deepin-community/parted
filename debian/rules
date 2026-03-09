@@ -12,7 +12,7 @@ DEB_HOST_ARCH_OS ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 
 export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 
-CONFFLAGS := --sbindir=/sbin --enable-mtrace --enable-shared
+CONFFLAGS := --sbindir=/usr/sbin --enable-mtrace --enable-shared
 CONFFLAGS += --disable-gcc-warnings
 
 # Enable device-mapper only on Linux
@@ -26,11 +26,11 @@ endif
 CONFFLAGS_UDEB := $(CONFFLAGS)
 
 # Options specific to the udeb build.
-CONFFLAGS_UDEB += ac_cv_header_execinfo_h=no --libdir=/lib
+CONFFLAGS_UDEB += ac_cv_header_execinfo_h=no --libdir=/usr/lib
 CONFFLAGS_UDEB += --disable-static --without-readline
 
 %:
-	dh $@ --with=autoreconf
+	dh $@
 
 override_dh_auto_configure:
 	dh_auto_configure -Bbuild-deb -- $(CONFFLAGS)
@@ -50,32 +50,31 @@ override_dh_auto_build:
 	$(MAKE) -C build-udeb/parted
 
 override_dh_auto_test:
-	:
 
 override_dh_auto_clean:
 	rm -rf build-deb build-udeb
 
-override_dh_clean:
+execute_before_dh_clean:
 	rm -rf debian/tmp-udeb
-	dh_clean
 
 override_dh_auto_install:
 	dh_auto_install -Bbuild-deb
 	$(MAKE) -C build-udeb/libparted install DESTDIR=$(CURDIR)/debian/tmp-udeb
 	$(MAKE) -C build-udeb/parted install DESTDIR=$(CURDIR)/debian/tmp-udeb
 	rm -f debian/tmp/usr/lib/*/*.la
-	rm -f debian/tmp-udeb/lib/*.la debian/tmp-udeb/lib/*.so
+	rm -f debian/tmp-udeb/usr/lib/*.la debian/tmp-udeb/usr/lib/*.so
 
 override_dh_install:
-	dh_install -Nparted-udeb -Nlibparted2-udeb -Nlibparted-fs-resize0-udeb --fail-missing
-	dh_install -pparted-udeb -plibparted2-udeb -plibparted-fs-resize0-udeb --sourcedir=debian/tmp-udeb --fail-missing
+	dh_install -Nparted-udeb -Nlibparted2-udeb -Nlibparted-fs-resize0-udeb
+	dh_install -pparted-udeb -plibparted2-udeb -plibparted-fs-resize0-udeb --sourcedir=debian/tmp-udeb
 
-override_dh_strip:
-	dh_strip -plibparted2 --ddeb-migration='libparted2-dbg (<< 3.2-11~)'
-	dh_strip -plibparted-fs-resize0 \
-		--ddeb-migration='libparted-fs-resize0-dbg (<< 3.2-11~)'
-	dh_strip -Nlibparted2 -Nlibparted-fs-resize0
+override_dh_installdocs-arch:
+	dh_installdocs --link-doc=libparted2t64
+
+override_dh_installdocs-indep:
+	dh_installdocs -pparted-doc --doc-main-package=libparted2t64
+	dh_installdocs --remaining-packages
 
 override_dh_makeshlibs:
-	dh_makeshlibs -plibparted2 --add-udeb=libparted2-udeb -- -c4
-	dh_makeshlibs -plibparted-fs-resize0 --add-udeb=libparted-fs-resize0-udeb -- -c4
+	dh_makeshlibs -plibparted2t64 --add-udeb=libparted2-udeb -- -c4
+	dh_makeshlibs -plibparted-fs-resize0t64 --add-udeb=libparted-fs-resize0-udeb -- -c4

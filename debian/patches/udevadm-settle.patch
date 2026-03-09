@@ -1,4 +1,4 @@
-From 2772377928f75f532d46aaf240c9145061168d58 Mon Sep 17 00:00:00 2001
+From 3947abeeb92069705229bff681b28d8ac78aedaa Mon Sep 17 00:00:00 2001
 From: Colin Watson <cjwatson@ubuntu.com>
 Date: Fri, 28 Mar 2014 17:10:16 +0000
 Subject: udev handling
@@ -17,7 +17,7 @@ Patch-Name: udevadm-settle.patch
  1 file changed, 54 insertions(+), 2 deletions(-)
 
 diff --git a/libparted/arch/linux.c b/libparted/arch/linux.c
-index 94ea176a..de80acf0 100644
+index ccbba865..f6f72360 100644
 --- a/libparted/arch/linux.c
 +++ b/libparted/arch/linux.c
 @@ -26,6 +26,7 @@
@@ -28,7 +28,7 @@ index 94ea176a..de80acf0 100644
  #include <ctype.h>
  #include <errno.h>
  #include <fcntl.h>
-@@ -3245,10 +3246,52 @@ _have_blkpg ()
+@@ -3250,10 +3251,52 @@ _have_blkpg ()
          return have_blkpg = kver >= KERNEL_VERSION (2,4,0) ? 1 : 0;
  }
  
@@ -81,7 +81,7 @@ index 94ea176a..de80acf0 100644
          if (disk->dev->type != PED_DEVICE_FILE) {
  
                  /* We now require BLKPG support.  If this assertion fails,
-@@ -3258,10 +3301,19 @@ linux_disk_commit (PedDisk* disk)
+@@ -3263,10 +3306,19 @@ linux_disk_commit (PedDisk* disk)
                  assert (_have_blkpg ());
  
                  if (!_disk_sync_part_table (disk))

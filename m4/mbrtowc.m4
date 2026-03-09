@@ -1,5 +1,5 @@
-# mbrtowc.m4 serial 37  -*- coding: utf-8 -*-
-dnl Copyright (C) 2001-2002, 2004-2005, 2008-2020 Free Software Foundation,
+# mbrtowc.m4 serial 39  -*- coding: utf-8 -*-
+dnl Copyright (C) 2001-2002, 2004-2005, 2008-2023 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -18,15 +18,8 @@ AC_DEFUN([gl_FUNC_MBRTOWC],
   if test $ac_cv_func_mbrtowc = no; then
     HAVE_MBRTOWC=0
     AC_CHECK_DECLS([mbrtowc],,, [[
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
-#include <wchar.h>
-]])
+      #include <wchar.h>
+    ]])
     if test $ac_cv_have_decl_mbrtowc = yes; then
       dnl On Minix 3.1.8, the system's <wchar.h> declares mbrtowc() although
       dnl it does not have the function. Avoid a collision with gnulib's
@@ -98,20 +91,23 @@ AC_DEFUN([gl_FUNC_MBRTOWC],
   fi
   if test $REPLACE_MBSTATE_T = 1; then
     case "$host_os" in
-      mingw*) LIB_MBRTOWC= ;;
+      mingw*) MBRTOWC_LIB= ;;
       *)
         gl_WEAK_SYMBOLS
         case "$gl_cv_have_weak" in
-          *yes) LIB_MBRTOWC= ;;
-          *)    LIB_MBRTOWC="$LIBPTHREAD" ;;
+          *yes) MBRTOWC_LIB= ;;
+          *)    MBRTOWC_LIB="$LIBPTHREAD" ;;
         esac
         ;;
     esac
   else
-    LIB_MBRTOWC=
+    MBRTOWC_LIB=
   fi
-  dnl LIB_MBRTOWC is expected to be '-pthread' or '-lpthread' on AIX
+  dnl MBRTOWC_LIB is expected to be '-pthread' or '-lpthread' on AIX
   dnl with gcc or xlc, and empty otherwise.
+  AC_SUBST([MBRTOWC_LIB])
+  dnl For backward compatibility.
+  LIB_MBRTOWC="$MBRTOWC_LIB"
   AC_SUBST([LIB_MBRTOWC])
 ])
 
@@ -181,13 +177,6 @@ changequote([,])dnl
           [AC_LANG_SOURCE([[
 #include <locale.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -213,13 +202,6 @@ int main ()
             [AC_LANG_SOURCE([[
 #include <locale.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -271,13 +253,6 @@ changequote([,])dnl
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -331,13 +306,6 @@ changequote([,])dnl
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -400,13 +368,6 @@ changequote([,])dnl
           [AC_LANG_SOURCE([[
 #include <locale.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -462,13 +423,6 @@ changequote([,])dnl
           [AC_LANG_SOURCE([[
 #include <locale.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -590,13 +544,6 @@ changequote([,])dnl
           [AC_LANG_SOURCE([[
 #include <locale.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -644,13 +591,6 @@ changequote([,])dnl
            [AC_LANG_SOURCE([[
 #include <locale.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -708,13 +648,6 @@ int main ()
              [AC_LANG_SOURCE([[
 #include <locale.h>
 #include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
-   included before <wchar.h>.  */
-#include <stddef.h>
-#include <stdio.h>
-#include <time.h>
 #include <wchar.h>
 int main ()
 {
@@ -845,14 +778,7 @@ AC_DEFUN([AC_FUNC_MBRTOWC],
     [gl_cv_func_mbrtowc],
     [AC_LINK_IFELSE(
        [AC_LANG_PROGRAM(
-            [[/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be
-                 included before <wchar.h>.
-                 BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h>
-                 must be included before <wchar.h>.  */
-              #include <stddef.h>
-              #include <stdio.h>
-              #include <time.h>
-              #include <wchar.h>]],
+            [[#include <wchar.h>]],
             [[wchar_t wc;
               char const s[] = "";
               size_t n = 1;

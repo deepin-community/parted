@@ -1,4 +1,4 @@
-From 84f75a46779b40d56b8e63f674c400fb98b575b4 Mon Sep 17 00:00:00 2001
+From 10e3164ce61e959817683edf52c1f1206f82ef0c Mon Sep 17 00:00:00 2001
 From: Colin Watson <cjwatson@ubuntu.com>
 Date: Fri, 28 Mar 2014 17:09:52 +0000
 Subject: Add LVM support on kFreeBSD

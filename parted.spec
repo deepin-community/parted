@@ -6,7 +6,7 @@
 
 Summary:   The GNU disk partition manipulation program
 Name:      parted
-Version:   3.3.52.5-2334-dirty
+Version:   3.6
 Release:   1
 Source:    ftp://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.bz2
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)

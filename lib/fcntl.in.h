@@ -1,18 +1,18 @@
 /* Like <fcntl.h>, but with non-working flags defined to 0.
 
-   Copyright (C) 2006-2020 Free Software Foundation, Inc.
+   Copyright (C) 2006-2023 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* written by Paul Eggert */
@@ -112,7 +112,7 @@ _GL_CXXALIASWARN (creat);
 /* Assume creat is always declared.  */
 _GL_WARN_ON_USE (creat, "creat is not always POSIX compliant - "
                  "use gnulib module creat for portability");
-#else
+#elif @GNULIB_MDA_CREAT@
 /* On native Windows, map 'creat' to '_creat', so that -loldnames is not
    required.  In C++ with GNULIB_NAMESPACE, avoid differences between
    platforms by defining GNULIB_NAMESPACE::creat always.  */
@@ -186,7 +186,7 @@ _GL_CXXALIASWARN (open);
 /* Assume open is always declared.  */
 _GL_WARN_ON_USE (open, "open is not always POSIX compliant - "
                  "use gnulib module open for portability");
-#else
+#elif @GNULIB_MDA_OPEN@
 /* On native Windows, map 'open' to '_open', so that -loldnames is not
    required.  In C++ with GNULIB_NAMESPACE, avoid differences between
    platforms by defining GNULIB_NAMESPACE::open always.  */
@@ -435,6 +435,10 @@ _GL_WARN_ON_USE (openat, "openat is not portable - "
 # define AT_EACCESS 4
 #endif
 
+/* Ignore this flag if not supported.  */
+#ifndef AT_NO_AUTOMOUNT
+# define AT_NO_AUTOMOUNT 0
+#endif
 
 #endif /* _@GUARD_PREFIX@_FCNTL_H */
 #endif /* _@GUARD_PREFIX@_FCNTL_H */

@@ -1,3 +1,2 @@
-version=3
-opts=pgpsigurlmangle=s/$/.sig/ \
-http://ftp.gnu.org/gnu/parted/parted-(.*)\.tar\.(?:gz|xz)
+version=4
+opts=pgpsigurlmangle=s/$/.sig/ https://ftp.gnu.org/gnu/parted/ parted-(.*)\.tar\.(?:gz|xz)
