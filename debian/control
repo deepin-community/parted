@@ -31,7 +31,7 @@ X-Style: black
 Package: parted
 Architecture: any
 Depends:
- libparted2t64 (= ${binary:Version}),
+ libparted2 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends},
 Suggests:
@@ -72,7 +72,7 @@ Depends:
  ${shlibs:Depends},
 Description: Manually partition a hard drive (parted)
 
-Package: libparted2t64
+Package: libparted2
 Architecture: any
 Section: libs
 Pre-Depends:
@@ -86,12 +86,7 @@ Suggests:
  libparted-i18n (= ${source:Version}),
  parted,
 Provides:
- libparted,
- ${t64:Provides},
-Replaces:
- libparted2,
-Conflicts:
- libparted2 (<< ${source:Version}),
+ libparted
 Multi-Arch: same
 Description: disk partition manipulator - shared library
  GNU Parted is a program that allows you to create, destroy, resize,
@@ -101,23 +96,17 @@ Description: disk partition manipulator - shared library
  .
  This package contains the shared library.
 
-Package: libparted-fs-resize0t64
+Package: libparted-fs-resize0
 Architecture: any
 Section: libs
 Pre-Depends:
  ${misc:Pre-Depends},
 Depends:
- libparted2t64 (= ${binary:Version}),
+ libparted2 (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends},
 Suggests:
  libparted-dev,
-Provides:
- ${t64:Provides},
-Replaces:
- libparted-fs-resize0,
-Conflicts:
- libparted-fs-resize0 (<< ${source:Version}),
 Multi-Arch: same
 Description: disk partition manipulator - shared FS resizing library
  GNU Parted is a program that allows you to create, destroy, resize,
@@ -166,7 +155,7 @@ Package: libparted-i18n
 Architecture: all
 Section: localization
 Depends:
- libparted2t64,
+ libparted2,
  ${misc:Depends},
 Description: disk partition manipulator - i18n support
  GNU Parted is a program that allows you to create, destroy, resize,
@@ -183,8 +172,8 @@ Depends:
  libblkid-dev,
  libc6-dev,
  libdevmapper-dev [linux-any],
- libparted-fs-resize0t64 (= ${binary:Version}),
- libparted2t64 (= ${binary:Version}),
+ libparted-fs-resize0 (= ${binary:Version}),
+ libparted2 (= ${binary:Version}),
  uuid-dev,
  ${misc:Depends},
 Suggests:

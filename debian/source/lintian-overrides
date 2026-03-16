@@ -1,4 +1,0 @@
-# Formerly built by this source package; renamed as part of 64-bit time_t
-# transition.
-parted source: version-substvar-for-external-package Conflicts ${source:Version} libparted-fs-resize0t64 -> libparted-fs-resize0 *
-parted source: version-substvar-for-external-package Conflicts ${source:Version} libparted2t64 -> libparted2 *
