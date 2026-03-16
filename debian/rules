@@ -69,12 +69,12 @@ override_dh_install:
 	dh_install -pparted-udeb -plibparted2-udeb -plibparted-fs-resize0-udeb --sourcedir=debian/tmp-udeb
 
 override_dh_installdocs-arch:
-	dh_installdocs --link-doc=libparted2t64
+	dh_installdocs --link-doc=libparted2
 
 override_dh_installdocs-indep:
-	dh_installdocs -pparted-doc --doc-main-package=libparted2t64
+	dh_installdocs -pparted-doc --doc-main-package=libparted2
 	dh_installdocs --remaining-packages
 
 override_dh_makeshlibs:
-	dh_makeshlibs -plibparted2t64 --add-udeb=libparted2-udeb -- -c4
-	dh_makeshlibs -plibparted-fs-resize0t64 --add-udeb=libparted-fs-resize0-udeb -- -c4
+	dh_makeshlibs -plibparted2 --add-udeb=libparted2-udeb -- -c4
+	dh_makeshlibs -plibparted-fs-resize0 --add-udeb=libparted-fs-resize0-udeb -- -c4
