@@ -1,3 +1,9 @@
+parted (3.6-5deepin1) unstable; urgency=medium
+
+  * Revert 64-bit time_t changes.
+
+ -- tunaichao <tunaichao@uniontech.com>  Mon, 16 Mar 2026 10:40:56 +0800
+
 parted (3.6-5) unstable; urgency=medium
 
   * Apply X-Style: black.
