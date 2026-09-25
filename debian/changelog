@@ -1,3 +1,12 @@
+parted (3.6-5deepin3) unstable; urgency=medium
+
+  * fix(cve): CVE-2026-89088 (unknown) - libparted: Catch FAT metadata
+    triggered errors   Upstream:
+    https://git.savannah.gnu.org/cgit/parted.git/commit/?id=73301c691578
+    1c2eee66d0b1cc9d41a70bf901d6
+
+ -- deepin-ci-robot <packages@deepin.org>  Sat, 26 Sep 2026 06:04:20 +0800
+
 parted (3.6-5deepin2) unstable; urgency=medium
 
   * Rebuild with LTO enabled (dpkg vendor feature optimize/lto).
