@@ -12,3 +12,4 @@ align-new-partitions-on-fresh-disks.patch
 probe-lvs-again.patch
 link-libuuid.patch
 gcc-15.patch
+CVE-2026-89088.patch
